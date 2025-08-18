@@ -1,20 +1,22 @@
-package com.rookies4.myspringboot.exception;
+package com.rookies4.myspringbootlab.exception;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
-@Getter
-public class BusinessException extends RuntimeException {	
-    private static final long serialVersionUID = 1L;
-    private String message;
-    private HttpStatus httpStatus;
 
-    public BusinessException(String message) {
-        //417
-        this(message, HttpStatus.EXPECTATION_FAILED);
+public class BusinessException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    private final HttpStatus httpStatus;
+
+    public BusinessException(HttpStatus httpStatus, String message) {
+        super(message);                // ✅ 표준 예외 메시지에 세팅
+        this.httpStatus = httpStatus;
     }
 
-    public BusinessException(String message, HttpStatus httpStatus) {
-        this.message = message;
-        this.httpStatus = httpStatus;
-    }    
+    public BusinessException(String message) {
+        this(HttpStatus.EXPECTATION_FAILED, message);
+    }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
 }

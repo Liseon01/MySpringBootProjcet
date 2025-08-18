@@ -1,6 +1,7 @@
-package com.rookies4.myspringboot.exception.advice;
+package com.rookies4.myspringbootlab.exception;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
