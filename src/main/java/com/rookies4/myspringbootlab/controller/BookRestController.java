@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/books/dd")
 public class BookRestController {
 
     private final BookRepository bookRepository;
@@ -53,20 +53,15 @@ public class BookRestController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Book> update(@PathVariable Long id, @RequestBody Book req) {
-        return bookRepository.findById(id)
-                .map(existing -> {
-                    existing.setTitle(req.getTitle());
-                    existing.setAuthor(req.getAuthor());
-                    existing.setIsbn(req.getIsbn());
-                    existing.setPrice(req.getPrice());
-                    existing.setPublishDate(req.getPublishDate());
-                    Book updated = bookRepository.save(existing);
-                    return ResponseEntity.ok(updated);
-                })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
-    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book bookDetail) {
+        Book existBook = bookRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Book Not Found"));
+        existBook.setPrice(bookDetail.getPrice());
 
+        Book updatedBook = bookRepository.save(existBook);
+        return ResponseEntity.ok(updatedBook);
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         if (!bookRepository.existsById(id)) {

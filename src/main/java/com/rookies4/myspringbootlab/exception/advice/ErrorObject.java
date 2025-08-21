@@ -1,4 +1,4 @@
-package com.rookies4.myspringbootlab.exception;
+package com.rookies4.myspringbootlab.exception.advice;
 
 import lombok.Data;
 
