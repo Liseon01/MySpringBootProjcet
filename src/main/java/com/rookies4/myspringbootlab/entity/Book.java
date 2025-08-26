@@ -27,6 +27,13 @@ public class Book {
     @Column(name = "publish_date", nullable = false)
     private LocalDate publishDate;
 
+    // Book은 연관관계의 주인이 아님 (주인은 BookDetail)
+    @OneToOne(mappedBy = "book",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private BookDetail detail;
+
     public Book() {}
 
     public Book(String title, String author, String isbn, Integer price, LocalDate publishDate) {
@@ -37,7 +44,7 @@ public class Book {
         this.publishDate = publishDate;
     }
 
-    // Getters & setters
+    // === getters & setters ===
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -55,4 +62,23 @@ public class Book {
 
     public LocalDate getPublishDate() { return publishDate; }
     public void setPublishDate(LocalDate publishDate) { this.publishDate = publishDate; }
+
+    // ★ 누락돼서 에러 나던 부분: getter 추가
+    public BookDetail getDetail() { return detail; }
+
+    // 양방향 연관관계 편의 메서드 (기존보다 안전하게 교체)
+    public void setDetail(BookDetail newDetail) {
+        if (this.detail == newDetail) return;
+
+        // 기존 연결 끊기
+        if (this.detail != null) {
+            this.detail.setBook(null);
+        }
+        this.detail = newDetail;
+
+        // 새 연결 설정
+        if (newDetail != null) {
+            newDetail.setBook(this);
+        }
+    }
 }
