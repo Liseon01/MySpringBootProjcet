@@ -3,16 +3,20 @@ package com.rookies4.myspringbootlab.repository;
 import com.rookies4.myspringbootlab.entity.BookDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface BookDetailRepository extends JpaRepository<BookDetail, Long> {
 
     Optional<BookDetail> findByBookId(Long bookId);
 
-    @Query("select d from BookDetail d join fetch d.book where d.id = :id")
-    Optional<BookDetail> findByIdWithBook(Long id);
+    @Query("SELECT bd FROM BookDetail bd JOIN FETCH bd.book WHERE bd.id = :id")
+    Optional<BookDetail> findByIdWithBook(@Param("id") Long id);
 
-    List<BookDetail> findByPublisherContainingIgnoreCase(String publisher);
+    @Query("SELECT bd FROM BookDetail bd WHERE bd.publisher = :publisher")
+    List<BookDetail> findByPublisher(@Param("publisher") String publisher);
 }
