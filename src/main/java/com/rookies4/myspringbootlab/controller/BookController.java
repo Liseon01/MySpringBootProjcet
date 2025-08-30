@@ -17,65 +17,51 @@ public class BookController {
 
     private final BookService bookService;
 
-    // GET /api/books
+    /** GET /api/books : 모든 도서 */
     @GetMapping
-    public ResponseEntity<List<BookDTO.BookResponse>> getAllBooks() {
+    public ResponseEntity<List<BookDTO.Response>> getAllBooks() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    // GET /api/books/{id}
+    /** GET /api/books/{id} : ID로 조회(출판사/상세 포함) */
     @GetMapping("/{id}")
-    public ResponseEntity<BookDTO.BookResponse> getBookById(@PathVariable Long id) {
+    public ResponseEntity<BookDTO.Response> getBookById(@PathVariable Long id) {
         return ResponseEntity.ok(bookService.getBookById(id));
     }
 
-    // GET /api/books/isbn/{isbn}
+    /** GET /api/books/isbn/{isbn} : ISBN으로 조회 */
     @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<BookDTO.BookResponse> getBookByIsbn(@PathVariable String isbn) {
+    public ResponseEntity<BookDTO.Response> getBookByIsbn(@PathVariable String isbn) {
         return ResponseEntity.ok(bookService.getBookByIsbn(isbn));
     }
 
-    // GET /api/books/search/author?author=Robert
+    /** GET /api/books/search/author?author=xxx : 작가로 검색 */
     @GetMapping("/search/author")
-    public ResponseEntity<List<BookDTO.BookResponse>> getBooksByAuthor(@RequestParam String author) {
+    public ResponseEntity<List<BookDTO.Response>> getBooksByAuthor(@RequestParam String author) {
         return ResponseEntity.ok(bookService.getBooksByAuthor(author));
     }
 
-    // GET /api/books/search/title?title=Clean
+    /** GET /api/books/search/title?title=xxx : 제목으로 검색 */
     @GetMapping("/search/title")
-    public ResponseEntity<List<BookDTO.BookResponse>> getBooksByTitle(@RequestParam String title) {
+    public ResponseEntity<List<BookDTO.Response>> getBooksByTitle(@RequestParam String title) {
         return ResponseEntity.ok(bookService.getBooksByTitle(title));
     }
 
-    // POST /api/books
+    /** POST /api/books : 도서 생성 */
     @PostMapping
-    public ResponseEntity<BookDTO.BookResponse> createBook(@RequestBody @Valid BookDTO.BookCreateRequest request) {
-        var saved = bookService.createBook(request);
+    public ResponseEntity<BookDTO.Response> createBook(@RequestBody @Valid BookDTO.Request request) {
+        BookDTO.Response saved = bookService.createBook(request);
         return ResponseEntity.created(URI.create("/api/books/" + saved.getId())).body(saved);
     }
 
-    // PUT /api/books/{id} (전체 수정)
+    /** PUT /api/books/{id} : 도서 수정(전체) */
     @PutMapping("/{id}")
-    public ResponseEntity<BookDTO.BookResponse> updateBook(@PathVariable Long id,
-                                                           @RequestBody @Valid BookDTO.BookUpdateRequest request) {
+    public ResponseEntity<BookDTO.Response> updateBook(@PathVariable Long id,
+                                                       @RequestBody @Valid BookDTO.Request request) {
         return ResponseEntity.ok(bookService.updateBook(id, request));
     }
 
-    // PATCH /api/books/{id} (부분 수정)
-    @PatchMapping("/{id}")
-    public ResponseEntity<BookDTO.BookResponse> patchBook(@PathVariable Long id,
-                                                          @RequestBody @Valid BookDTO.PatchRequest request) {
-        return ResponseEntity.ok(bookService.patchBook(id, request));
-    }
-
-    // PATCH /api/books/{id}/detail (상세만 부분 수정)
-    @PatchMapping("/{id}/detail")
-    public ResponseEntity<BookDTO.BookResponse> patchBookDetail(@PathVariable Long id,
-                                                                @RequestBody @Valid BookDTO.BookDetailPatchRequest request) {
-        return ResponseEntity.ok(bookService.patchBookDetail(id, request));
-    }
-
-    // DELETE /api/books/{id}
+    /** DELETE /api/books/{id} : 도서 삭제 */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);

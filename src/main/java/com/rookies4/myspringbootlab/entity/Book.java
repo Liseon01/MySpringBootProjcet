@@ -1,15 +1,20 @@
 package com.rookies4.myspringbootlab.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDate;
 
-/** Simple JPA Entity for books. */
 @Entity
 @Table(name = "books")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter
+@Builder
 public class Book {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 200)
@@ -18,67 +23,32 @@ public class Book {
     @Column(nullable = false, length = 100)
     private String author;
 
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(nullable = false, unique = true, length = 30)
     private String isbn;
 
-    @Column(nullable = false)
     private Integer price;
 
-    @Column(name = "publish_date", nullable = false)
     private LocalDate publishDate;
 
-    // Book은 연관관계의 주인이 아님 (주인은 BookDetail)
+    /** NEW: Many-to-One to Publisher */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher_id")
+    private Publisher publisher;
+
+    /** EXISTING: One-to-One to BookDetail (owning side is BookDetail via book_id) */
+    @JsonManagedReference
     @OneToOne(mappedBy = "book",
-            fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
             orphanRemoval = true)
-    private BookDetail detail;
+    @Setter(AccessLevel.NONE) // use custom setter below to keep both sides in sync
+    private BookDetail bookDetail;
 
-    public Book() {}
-
-    public Book(String title, String author, String isbn, Integer price, LocalDate publishDate) {
-        this.title = title;
-        this.author = author;
-        this.isbn = isbn;
-        this.price = price;
-        this.publishDate = publishDate;
-    }
-
-    // === getters & setters ===
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
-
-    public String getIsbn() { return isbn; }
-    public void setIsbn(String isbn) { this.isbn = isbn; }
-
-    public Integer getPrice() { return price; }
-    public void setPrice(Integer price) { this.price = price; }
-
-    public LocalDate getPublishDate() { return publishDate; }
-    public void setPublishDate(LocalDate publishDate) { this.publishDate = publishDate; }
-
-    // ★ 누락돼서 에러 나던 부분: getter 추가
-    public BookDetail getDetail() { return detail; }
-
-    // 양방향 연관관계 편의 메서드 (기존보다 안전하게 교체)
-    public void setDetail(BookDetail newDetail) {
-        if (this.detail == newDetail) return;
-
-        // 기존 연결 끊기
-        if (this.detail != null) {
-            this.detail.setBook(null);
-        }
-        this.detail = newDetail;
-
-        // 새 연결 설정
-        if (newDetail != null) {
-            newDetail.setBook(this);
+    /** Keep bidirectional link Book <-> BookDetail consistent */
+    public void setBookDetail(BookDetail detail) {
+        this.bookDetail = detail;
+        if (detail != null && detail.getBook() != this) {
+            detail.setBook(this);
         }
     }
 }
